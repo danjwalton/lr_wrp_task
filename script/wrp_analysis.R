@@ -34,13 +34,13 @@ long_vars <- rbindlist(lapply(1:nrow(domain_map),
                                                    harm = wrp4[, get(domain_map$harm_var[i])],
                                                    wrp4[, .SD, .SDcols = (id_vars)])))
 
-check_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5")
+check_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5", "worry", "harm")
 long_vars[, (check_cols) := lapply(.SD, function(x) fifelse(x %in% c(97, 98, 99), NA, x)), .SDcols = check_cols]
 
 long_vars[, worry := 4-worry] #reverse worry scoring
 long_vars[, harm := 1*(harm != 4)] #binary harm scoring
 
-long_vars <- long_vars[!is.na(worry) & !is.na(harm)]
+long_vars <- long_vars[complete.cases(long_vars)]
 
 fac_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5")
 long_vars[, (fac_cols) := lapply(.SD, as.factor), .SDcols = fac_cols]
