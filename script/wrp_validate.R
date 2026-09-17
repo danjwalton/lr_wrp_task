@@ -44,6 +44,12 @@ if(nrow(bad_vals) > 0){
 #Remove the Manics references
 wrp4[wrp4 == "If You Tolerate This Your Children Will Be Next"] <- NA
 
+#Change Urbanicity and Education DK/Refused coding
+wrp4[Urbanicity == 4, Urbanicity := 98]
+wrp4[Urbanicity == 5, Urbanicity := 99]
+wrp4[Education == 4, Education := 98]
+wrp4[Education == 5, Education := 99]
+
 #Correct age in schema as string
 schema_col[var == "Age", r_type := "numeric"]
 wrp4[, Age := as.numeric(Age)]
