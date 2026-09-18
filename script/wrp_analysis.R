@@ -20,6 +20,7 @@ domain_map <- data.table(worry_var, harm_var, domain)
 
 id_vars <- c(
   "COUNTRY_ISO3",
+  "CountryIncomeLevel2025",
   "WGT",
   "Gender",
   "AgeGroups5",
@@ -34,15 +35,15 @@ long_vars <- rbindlist(lapply(1:nrow(domain_map),
                                                    harm = wrp4[, get(domain_map$harm_var[i])],
                                                    wrp4[, .SD, .SDcols = (id_vars)])))
 
-check_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5", "worry", "harm")
-long_vars[, (check_cols) := lapply(.SD, function(x) fifelse(x %in% c(97, 98, 99), NA, x)), .SDcols = check_cols]
+check_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5", "CountryIncomeLevel2025", "worry", "harm")
+long_vars[, (check_cols) := lapply(.SD, function(x) fifelse(x %in% c(9, 97, 98, 99), NA, x)), .SDcols = check_cols]
 
 long_vars[, worry := 4-worry] #reverse worry scoring
 long_vars[, harm := 1*(harm != 4)] #binary harm scoring
 
 long_vars <- long_vars[complete.cases(long_vars)]
 
-fac_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5")
+fac_cols <- c("Gender", "AgeGroups5", "Education", "Urbanicity", "INCOME_5", "CountryIncomeLevel2025")
 long_vars[, (fac_cols) := lapply(.SD, as.factor), .SDcols = fac_cols]
 
 #Worry domain model
@@ -50,7 +51,7 @@ domains <- domain_map$domain
 fixed_effects_list <- list()
 for(i in 1:length(domains)){
   dom <- domains[i]
-  lmemodel <- lmer(worry ~ harm + Gender + AgeGroups5 + Education + Urbanicity + INCOME_5 + (1 + harm | COUNTRY_ISO3),
+  lmemodel <- lmer(worry ~ harm + Gender + AgeGroups5 + Education + Urbanicity + INCOME_5*CountryIncomeLevel2025 + (1 + harm | COUNTRY_ISO3),
                 data = long_vars[domain == dom],
                 weights = WGT)
   fe <- data.table(tidy(lmemodel, effects = "fixed"))

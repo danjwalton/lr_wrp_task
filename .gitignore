@@ -50,3 +50,4 @@ rsconnect/
 
 src/*
 clean_src/*
+*.xlsx
